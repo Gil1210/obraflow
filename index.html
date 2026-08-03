@@ -1077,18 +1077,42 @@ function addRecebimentoCliente(obraId, dados) {
   if (!o) return;
   o.recebimentos = o.recebimentos || [];
   const numSeq = proximoNumero(o, 'recebimento');
+  const recId = uid();
+
+  /* Se vinculado a medição, localiza a CR e sincroniza status */
+  let origemId = dados.origemId || '';
+  let descricao = dados.observacao || 'Pagamento referente à obra';
+
+  if (dados.medicaoId) {
+    const med = (o.medicoes||[]).find(m => m.id === dados.medicaoId);
+    if (med) {
+      descricao = 'MED-' + (med.numero||'001') + ' — ' + (med.descricao||'Medição');
+    }
+    /* Localizar CR vinculada e marcar como recebida */
+    const cr = (o.contasReceber||[]).find(c => c.medicaoId === dados.medicaoId);
+    if (cr) {
+      origemId = cr.id;
+      cr.status = 'recebido';
+      cr.dataRecebimento = dados.data || todayISO();
+      cr.formaPagamento = dados.formaPagamento || 'PIX';
+    }
+    /* Marcar medição como paga */
+    if (med) med.statusPagamento = 'pago';
+  }
+
   o.recebimentos.push({
-    id: uid(),
+    id: recId,
     numero: numSeq,
     data: dados.data || todayISO(),
     valor: parseMoeda(dados.valor),
     formaPagamento: dados.formaPagamento || 'PIX',
     comprovanteNro: dados.comprovanteNro || '',
-    observacao: dados.observacao || '',
+    observacao: descricao,
     medicaoId: dados.medicaoId || '',
+    origemId: origemId,
   });
   salvar(); render();
-  toast('Recebimento REC-' + numSeq + ' (' + brl(dados.valor) + ') registrado com sucesso!');
+  toast('Recebimento REC-' + numSeq + ' (' + brl(dados.valor) + ') registrado!');
 }
 
 function removerRecebimentoCliente(obraId, id) {
