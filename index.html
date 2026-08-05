@@ -245,12 +245,7 @@ table.tbl th.col-center, table.tbl td.col-center{text-align:center;vertical-alig
 input, select, textarea {
   border-radius: 10px !important;
 }
-
-  .grid-3{grid-template-columns:repeat(2,1fr);}
-  .grid-4{grid-template-columns:repeat(2,1fr);}
-  .modal{padding:12px;border-radius:10px;}
-  table.tbl{min-width:400px;}
-}</style>
+</style>
 </head>
 <body>
 <div id="root"></div>
@@ -1316,7 +1311,7 @@ function renderShell(contentHtml, obra) {
           navItem('trabalhadores', 'trabalhadores', 'Diárias / Equipe') +
           navItem('galeria', 'galeria', 'Galeria de Fotos') +
           navItem('financeiro', 'financeiro', 'Financeiro Total') +
-          navItem('fluxo', 'fluxo', 'Fluxo de Caixa')
+          navItem('fluxo', 'fluxo', '💰 Fluxo de Caixa')
         ) : '') +
       '</div>' +
       '<div class="side-foot">ObraFlow · uso offline<br>Dados salvos neste aparelho</div>' +
@@ -1324,24 +1319,34 @@ function renderShell(contentHtml, obra) {
     '<div class="main">' +
       '<div class="topbar">' +
         '<div style="display:flex;align-items:center;min-width:0;">' +
-          '<button class="hamb" onclick="toggleMenu()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>' +
-          '<div style="min-width:0;overflow:hidden;"><h1 style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (obra ? esc(obra.nome) : (state.screen === 'config' ? 'Configurações' : 'Dashboard Geral')) + '</h1>' +
-          (obra ? '<div class="sub">' + esc(obra.cliente || 'Sem cliente definido') + '</div>' : (state.screen === 'config' ? '<div class="sub">Empresa & Preferências</div>' : '<div class="sub">Visão geral de todas as obras ativas</div>')) +
-          '</div>' +
-        '</div>' +
+        '<button class="hamb" onclick="toggleMenu()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>' +
+        '<div style="min-width:0;overflow:hidden;"><h1 style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (obra ? esc(obra.nome) : (state.screen === 'config' ? 'Configurações' : 'Dashboard Geral')) + '</h1>' +
+        (obra ? '<div class="sub">' + esc(obra.cliente || 'Sem cliente definido') + '</div>' : (state.screen === 'config' ? '<div class="sub">Dados da sua empresa, paleta de cores e modelo de PDF</div>' : '<div class="sub">Visão geral de todas as obras ativas</div>')) +
+        '</div></div>' +
         (obra ? (
           '<div style="display:flex;gap:6px;flex-none;">' +
-            '<button class="btn btn-ghost btn-sm" onclick="abrirModalEditarObra()" title="Editar dados da obra">' + ICONS.edit + '</button>' +
-            '<button class="btn btn-ghost btn-sm" style="color:var(--bad);" onclick="excluirObra(\'' + obra.id + '\')\" title="Excluir obra">' + ICONS.trash + '</button>' +
-            '<button class="btn btn-ghost btn-sm" onclick="irPainel()" title="Voltar ao painel">' + ICONS.painel + '</button>' +
+            '<button class="btn btn-ghost btn-sm" onclick="abrirModalEditarObra()" title="Editar dados da obra">' + ICONS.edit + '<span class="hide-mobile"> Editar</span></button>' +
+            '<button class="btn btn-danger btn-sm" onclick="excluirObra(\'' + obra.id + '\')" title="Excluir esta obra">' + ICONS.trash + '<span class="hide-mobile"> Excluir</span></button>' +
+            '<button class="btn btn-ghost btn-sm" onclick="irPainel()">' + ICONS.back + ' <span class="hide-mobile">Todas as obras</span></button>' +
           '</div>'
-        ) : '') +
+        ) : (
+          '<div style="display:flex;gap:8px;align-items:center;">' +
+            '<button class="btn btn-primary btn-sm" onclick="abrirModalNovaObra()">' + ICONS.plus + ' Nova Obra</button>' +
+            '<button class="btn btn-ghost btn-sm" onclick="exportarBackupObraFlow()">📥 Backup</button>' +
+          '</div>'
+        )) +
       '</div>' +
-      '<div id="root" class="content">' + contentHtml + '</div>' +
+      '<div class="content">' + contentHtml + '</div>' +
+      ((obra && state.obraTab !== 'apontamento-form') ? (
+        '<div class="bottom-nav">' +
+          '<button class="btn btn-ghost btn-sm" onclick="etapaAnterior()" ' + (OBRA_TABS_ORDEM.indexOf(state.obraTab) <= 0 ? 'disabled' : '') + '>' + ICONS.back + ' <span class="hide-mobile">Voltar</span></button>' +
+          '<span class="lbl">' + (OBRA_TABS_LABEL[state.obraTab] || '') + '</span>' +
+          '<button class="btn btn-ghost btn-sm" onclick="etapaProxima()" ' + (OBRA_TABS_ORDEM.indexOf(state.obraTab) >= OBRA_TABS_ORDEM.length - 1 ? 'disabled' : '') + '><span class="hide-mobile">Avançar</span> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>' +
+        '</div>'
+      ) : '') +
     '</div>' +
   '</div>';
 }
-
 
 function renderPainelGeral() {
   const obras = state.obras;
@@ -1382,7 +1387,7 @@ function renderPainelGeral() {
         '<h3>Nenhuma obra cadastrada ainda</h3>' +
         '<p>Cadastre sua primeira obra para visualizar os gráficos de progresso financeiro, distribuição de custos e indicadores do Dashboard Geral.</p>' +
         '<button class="btn btn-primary" onclick="abrirModalNovaObra()">' + ICONS.plus + ' Criar Primeira Obra</button>' +
-      '</button>';
+      '</div>';
   }
 
   const kpiCardsHtml = '' +
@@ -1390,28 +1395,28 @@ function renderPainelGeral() {
       '<div class="kpi">' +
         '<span class="tag-top">Ativas</span>' +
         '<div class="lbl">Obras em Andamento</div>' +
-        '<div class="val" style="margin-top:8px;">' + ativas.length + ' / ' + totalObras + '</button>' +
+        '<div class="val" style="margin-top:8px;">' + ativas.length + ' / ' + totalObras + '</div>' +
         '<div class="sub-text">Projetos em execução</div>' +
-      '</button>' +
+      '</div>' +
       '<div class="kpi">' +
         '<span class="tag-top">Contratos</span>' +
         '<div class="lbl">Orçamento Total</div>' +
-        '<div class="val" style="margin-top:8px;">' + brl(valorTotalCarteira) + '</button>' +
+        '<div class="val" style="margin-top:8px;">' + brl(valorTotalCarteira) + '</div>' +
         '<div class="sub-text">Valor contratado acumulado</div>' +
-      '</button>' +
+      '</div>' +
       '<div class="kpi">' +
         '<span class="tag-top">Comprovado</span>' +
         '<div class="lbl">Recebido dos Clientes</div>' +
-        '<div class="val" style="color:var(--good);margin-top:8px;">' + brl(valorTotalRecebidoGlobal) + '</button>' +
+        '<div class="val" style="color:var(--good);margin-top:8px;">' + brl(valorTotalRecebidoGlobal) + '</div>' +
         '<div class="sub-text">Entradas quitadas / pagas</div>' +
-      '</button>' +
+      '</div>' +
       '<div class="kpi">' +
         '<span class="tag-top">Realizado</span>' +
         '<div class="lbl">Total de Despesas</div>' +
-        '<div class="val" style="color:var(--bad);margin-top:8px;">' + brl(gastosReaisGlobal) + '</button>' +
+        '<div class="val" style="color:var(--bad);margin-top:8px;">' + brl(gastosReaisGlobal) + '</div>' +
         '<div class="sub-text">Custo acumulado das obras</div>' +
-      '</button>' +
-    '</button>';
+      '</div>' +
+    '</div>';
 
   const maxValor = Math.max(1, ...obras.map(o => Math.max(valorContratoAtual(o), totalRecebidoCliente(o), totalGastosReais(o))));
   const chartW = 580, chartH = 210, padLeft = 60, padBot = 30, padTop = 20, padRight = 20;
@@ -1508,9 +1513,9 @@ function renderPainelGeral() {
       '<div style="display:flex;align-items:center;gap:7px;">' +
         '<span style="width:10px;height:10px;border-radius:50%;background:' + coresCat[cat] + ';display:inline-block;"></span>' +
         '<span>' + labelsCat[cat] + '</span>' +
-      '</button>' +
+      '</div>' +
       '<span style="color:var(--ink-soft);">' + brl(val) + ' (' + pct + '%)</span>' +
-    '</button>';
+    '</div>';
   }).join('');
 
   const donutChartHtml = '' +
@@ -1519,9 +1524,9 @@ function renderPainelGeral() {
       '<svg viewBox="0 0 120 120" style="width:100%;height:100%;">' +
         (totalCustos > 1 ? donutSlicesSvg : '<circle cx="60" cy="60" r="40" fill="transparent" stroke="var(--line-strong)" stroke-width="18"/>') +
       '</svg>' +
-    '</button>' +
-    '<div style="flex:1;min-width:180px;">' + donutLegendHtml + '</button>' +
-  '</button>';
+    '</div>' +
+    '<div style="flex:1;min-width:180px;">' + donutLegendHtml + '</div>' +
+  '</div>';
 
   const cardsObrasGridHtml = obrasFiltradas.sort((a, b) => {
     const ordem = { 'andamento': 0, 'concluida': 1, 'parada': 2 };
@@ -1543,30 +1548,30 @@ function renderPainelGeral() {
       '<div>' +
         '<div class="obra-header">' +
           '<div style="min-width:0;">' +
-            '<div class="obra-nome">' + esc(o.nome) + '</button>' +
-            '<div class="obra-cliente">' + esc(o.cliente || 'Sem cliente') + '</button>' +
-          '</button>' +
-          '<div class="status-badge" onclick="event.stopPropagation();">' + statusBadge + '</button>' +
-        '</button>' +
+            '<div class="obra-nome">' + esc(o.nome) + '</div>' +
+            '<div class="obra-cliente">' + esc(o.cliente || 'Sem cliente') + '</div>' +
+          '</div>' +
+          '<div class="status-badge" onclick="event.stopPropagation();">' + statusBadge + '</div>' +
+        '</div>' +
         '<div class="progress-container">' +
           '<div class="progress-track">' +
             '<div class="progress-fill" style="width:' + clamp(pctPrazo, 0, 100) + '%;background:var(--line-strong);position:absolute;" title="Prazo consumido"></div>' +
             '<div class="progress-fill" style="width:' + clamp(pct, 0, 100) + '%;background:' + progressColor + ';position:relative;" title="Físico executado"></div>' +
-          '</button>' +
+          '</div>' +
           '<div class="progress-labels">' +
             '<span>📊 Físico ' + Math.round(pct) + '%</span>' +
             '<span>⏱ Prazo ' + pctPrazo + '%</span>' +
-          '</button>' +
-        '</button>' +
-      '</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
       '<div>' +
         '<div class="obra-footer">' +
           '<span class="contrato">Contrato: <span>' + brl(valorContratoAtual(o)) + '</span></span>' +
           '<span>Em Aberto: <span style="color:' + (emAberto > 0 ? 'var(--warn)' : 'var(--good)') + ';">' + brl(emAberto) + '</span></span>' +
-        '</button>' +
+        '</div>' +
         (atraso ? '<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--bad-soft);"><span class="badge badge-bad">' + ICONS.alert + ' Etapa(s) Atrasada(s)</span></div>' : '') +
-      '</button>' +
-    '</button>';
+      '</div>' +
+    '</div>';
   }).join('');
 
   const linhasUltimosRdos = ultimosRdos.map(r => {
@@ -1586,36 +1591,36 @@ function renderPainelGeral() {
       '<div class="card">' +
         '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">' +
           '<h2 class="section-title" style="margin:0;"><span class="bar"></span>Progresso Financeiro por Obra</h2>' +
-        '</button>' +
+        '</div>' +
         barChartSvg +
-      '</button>' +
+      '</div>' +
       '<div class="card">' +
         '<h2 class="section-title"><span class="bar"></span>Distribuição de Custos</h2>' +
         donutChartHtml +
-      '</button>' +
-    '</button>' +
+      '</div>' +
+    '</div>' +
     '<div style="margin-bottom:18px;">' +
       '<div style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">' +
         '<h2 class="section-title" style="margin:0;"><span class="bar"></span>Obras da Carteira (Cards de Gestão)</h2>' +
         '<button class="btn btn-primary btn-sm" onclick="abrirModalNovaObra()">' + ICONS.plus + ' Nova Obra</button>' +
-      '</button>' +
+      '</div>' +
       '<div class="search-bar">' +
         '<input class="search-input" placeholder="🔍 Pesquisar obra ou cliente..." value="' + esc(state.searchQuery) + '" oninput="state.searchQuery=this.value; render();">' +
         '<div class="filter-tabs">' +
           '<button class="filter-btn ' + (state.statusFilter === 'todos' ? 'active' : '') + '" onclick="state.statusFilter=\'todos\'; render();">Todas (' + obras.length + ')</button>' +
           '<button class="filter-btn ' + (state.statusFilter === 'andamento' ? 'active' : '') + '" onclick="state.statusFilter=\'andamento\'; render();">Ativas (' + ativas.length + ')</button>' +
           '<button class="filter-btn ' + (state.statusFilter === 'atraso' ? 'active' : '') + '" onclick="state.statusFilter=\'atraso\'; render();">Com Atraso (' + atrasadas.length + ')</button>' +
-        '</button>' +
-      '</button>' +
-      (obrasFiltradas.length ? '<div class="grid grid-3">' + cardsObrasGridHtml + '</button>' : '<div class="empty">Nenhuma obra encontrada.</div>') +
-    '</button>' +
+        '</div>' +
+      '</div>' +
+      (obrasFiltradas.length ? '<div class="grid grid-3">' + cardsObrasGridHtml + '</div>' : '<div class="empty">Nenhuma obra encontrada.</div>') +
+    '</div>' +
     '<div class="card">' +
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">' +
         '<h2 class="section-title" style="margin:0;"><span class="bar"></span>Últimos RDOs Emitidos</h2>' +
         '<span style="color:var(--accent);cursor:pointer;" onclick="if(state.obras.length) abrirObra(state.obras[0].id);">Ver todos →</span>' +
-      '</button>' +
+      '</div>' +
       '<div class="tbl-responsive"><table class="tbl"><thead><tr><th style="width:90px;">Data</th><th class="col-desc">Obra</th><th class="col-desc">Responsável</th><th class="col-center">Clima</th></tr></thead><tbody>' + (linhasUltimosRdos || '<tr><td colspan="4" class="empty">Nenhum RDO registrado</td></tr>') + '</tbody></table></div>' +
-    '</button>';
+    '</div>';
 }
 
 function renderConfigScreen() {
@@ -1631,22 +1636,22 @@ function renderConfigScreen() {
           '<div style="position:relative;display:inline-block;">' +
             '<img src="' + emp.logo + '" style="width:110px;height:110px;object-fit:contain;border:1px solid var(--line);border-radius:10px;background:var(--bg-card);padding:6px;">' +
             '<button onclick="removerLogoEmpresa()" title="Remover logo" style="position:absolute;top:-8px;right:-8px;background:var(--bad);color:#fff;border:none;border-radius:50%;width:22px;height:22px;cursor:pointer;">×</button>' +
-          '</button>'
+          '</div>'
         ) : (
           '<div style="width:110px;height:110px;border:2px dashed var(--line-strong);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--ink-faint);text-align:center;padding:8px;">Sem logo</div>'
         )) +
         '<label class="btn btn-ghost btn-sm" style="display:inline-flex;margin-top:8px;width:110px;justify-content:center;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> ' + (emp.logo ? 'Trocar' : 'Enviar') + '<input type="file" accept="image/*" style="display:none;" onchange="uploadLogoEmpresa(this.files)"></label>' +
-      '</button>' +
+      '</div>' +
       '<div style="flex:1;min-width:240px;display:flex;flex-direction:column;gap:12px;">' +
         '<div class="field"><label>Nome / Razão Social</label><input id="cfg-razao" value="' + esc(emp.razao) + '" placeholder="Ex.: GM Reformas & Engenharia" onfocus="this.select()" oninput="state.empresa.razao=this.value; salvar();"></div>' +
         '<div class="field"><label>Contato</label><input id="cfg-contato" value="' + esc(emp.contato) + '" placeholder="Ex.: (18) 98161-9439" onfocus="this.select()" oninput="state.empresa.contato=this.value; salvar();"></div>' +
         '<div class="field"><label>Responsável Técnico Padrão</label><input id="cfg-responsavel" value="' + esc(emp.responsavel) + '" placeholder="Ex.: Eng. Gilson M.D.O" onfocus="this.select()" oninput="state.empresa.responsavel=this.value; salvar();"></div>' +
-      '</button>' +
-    '</button>' +
+      '</div>' +
+    '</div>' +
     '<div style="display:flex;justify-content:flex-end;margin-top:16px;">' +
       '<button class="btn btn-primary btn-sm" onclick="salvarConfigEmpresa()">Salvar Dados da Empresa</button>' +
-    '</button>' +
-  '</button>' +
+    '</div>' +
+  '</div>' +
 
   '<h2 class="section-title" style="margin-top:22px;"><span class="bar"></span>Modelos de Layout para Relatórios e Recibos (PDF Executivo)</h2>' +
   '<p style="color:var(--ink-faint);margin:0 0 14px;">Escolha o modelo visual que será aplicado em todos os PDFs gerados pelo sistema (Extratos, Recibos, RDO, Financeiro).</p>' +
@@ -1656,12 +1661,12 @@ function renderConfigScreen() {
       const ativo = state.modeloRelatorio === key;
       return '' +
       '<div class="card" style="cursor:pointer;' + (ativo ? 'border-color:var(--accent);border-width:2px;' : '') + '" onclick="aplicarModeloRelatorioEAtualizar(\'' + key + '\')">' +
-        '<div class="val-destaque">' + esc(m.nome) + '</button>' +
-        '<div style="color:var(--ink-faint);margin-top:4px;line-height:1.3;">' + esc(m.desc) + '</button>' +
+        '<div class="val-destaque">' + esc(m.nome) + '</div>' +
+        '<div style="color:var(--ink-faint);margin-top:4px;line-height:1.3;">' + esc(m.desc) + '</div>' +
         (ativo ? '<span class="badge badge-good" style="margin-top:8px;">✓ Modelo Selecionado</span>' : '<div class="hint" style="margin-top:6px;">Clique para selecionar</div>') +
-      '</button>';
+      '</div>';
     }).join('') +
-  '</button>' +
+  '</div>' +
 
   '<h2 class="section-title" style="margin-top:22px;"><span class="bar"></span>Paletas de Cores Harmonizadas (Zero Fundo Branco Stark)</h2>' +
   '<p style="color:var(--ink-faint);margin:0 0 14px;">Paletas com fundos e cartões tom sobre tom para conforto visual absoluto e alta legibilidade.</p>' +
@@ -1676,21 +1681,21 @@ function renderConfigScreen() {
           '<div style="width:28px;height:28px;border-radius:6px;background:' + t['--bg-card'] + ';border:1px solid ' + t['--line'] + ';" title="Cartões Tom sobre Tom"></div>' +
           '<div style="width:28px;height:28px;border-radius:6px;background:' + t['--ink'] + ';" title="Texto Nítido"></div>' +
           '<div style="width:28px;height:28px;border-radius:6px;background:' + t['--accent'] + ';" title="Destaque"></div>' +
-        '</button>' +
-        '<div class="val-destaque">' + esc(t.nome) + '</button>' +
-        '<div style="color:var(--ink-faint);margin-top:4px;line-height:1.3;">' + esc(t.desc) + '</button>' +
+        '</div>' +
+        '<div class="val-destaque">' + esc(t.nome) + '</div>' +
+        '<div style="color:var(--ink-faint);margin-top:4px;line-height:1.3;">' + esc(t.desc) + '</div>' +
         (ativo ? '<span class="badge badge-good" style="margin-top:8px;">Em uso</span>' : '<div class="hint" style="margin-top:6px;">Clique para aplicar</div>') +
-      '</button>';
+      '</div>';
     }).join('') +
-  '</button>' +
+  '</div>' +
 
   '<h2 class="section-title" style="margin-top:22px;"><span class="bar"></span>Backup dos Dados</h2>' +
   '<div class="card">' +
     '<div style="display:flex;gap:10px;flex-wrap:wrap;">' +
       '<button class="btn btn-primary btn-sm" onclick="exportarBackupObraFlow()">Exportar Backup</button>' +
       '<label class="btn btn-ghost btn-sm" style="display:inline-flex;">Importar Backup<input type="file" accept="application/json" style="display:none;" onchange="importarBackupObraFlow(this.files)"></label>' +
-    '</button>' +
-  '</button>' +
+    '</div>' +
+  '</div>' +
 
   '<h2 class="section-title" style="margin-top:22px;"><span class="bar"></span>📱 Aplicativo na Tela Inicial do Celular</h2>' +
   '<p style="color:var(--ink-faint);margin:0 0 14px;">Abra o ObraFlow direto da tela inicial do seu celular sem precisar digitar o endereço.</p>' +
@@ -1698,16 +1703,16 @@ function renderConfigScreen() {
     '<div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;">' +
       '<div style="background:var(--bg-sunken);padding:12px;border-radius:12px;display:flex;align-items:center;justify-content:center;">' +
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="44" height="44"><rect width="512" height="512" rx="100" fill="#101622"/><path d="M120 380L120 180L240 100L360 180L360 380Z" fill="#1E293B" stroke="#3B82F6" stroke-width="16"/><rect x="180" y="200" width="40" height="50" rx="6" fill="#3B82F6"/><rect x="260" y="200" width="40" height="50" rx="6" fill="#3B82F6"/><rect x="180" y="280" width="40" height="50" rx="6" fill="#3B82F6"/><rect x="260" y="280" width="40" height="50" rx="6" fill="#3B82F6"/><path d="M80 400L432 400" stroke="#F59E0B" stroke-width="20" stroke-linecap="round"/><path d="M210 380L210 320L270 320L270 380Z" fill="#F59E0B"/></svg>' +
-      '</button>' +
+      '</div>' +
       '<div style="flex:1;min-width:240px;">' +
         '<div class="val-destaque">Como instalar no Celular:</div>' +
         '<div style="color:var(--ink-soft);margin-top:6px;line-height:1.4;">' +
           '• <b>No Android (Chrome):</b> Toque nos 3 pontinhos (<b>⋮</b>) no topo do navegador e escolha <b>"Adicionar à Tela Inicial"</b> ou <b>"Instalar aplicativo"</b>.<br>' +
           '• <b>No iPhone (Safari):</b> Toque no botão de <b>Compartilhar</b> (quadrado com seta pra cima ⎋) na barra inferior e selecione <b>"Adicionar à Tela de Início"</b>.' +
-        '</button>' +
-      '</button>' +
-    '</button>' +
-  '</button>';
+        '</div>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
 }
 
 function uploadLogoEmpresa(files) {
@@ -1854,12 +1859,6 @@ function renderModal() {
 function renderModalContent(modal) {
   const o = getObra();
   if (modal.tipo === 'folha-pagamento') return renderModalFolhaPagamento(modal);
-  if (modal.tipo === 'relatorio-dia') return renderModalRelatorioDia(modal);
-  if (modal.tipo === 'modal-efetivo') return renderModalEfetivo(modal);
-  if (modal.tipo === 'relatorio-presencas') return renderModalRelatorioPresencas(modal);
-  if (modal.tipo === 'importar-etapas') return renderModalImportarEtapas(modal);
-  if (modal.tipo === 'relatorio-dia') return renderModalRelatorioDia(modal);
-  if (modal.tipo === 'relatorio-presencas') return renderModalRelatorioPresencas(modal);
   // Delega modais do Fluxo de Caixa
   const fluxoResult = renderModalFluxo(modal);
   if (fluxoResult !== null && fluxoResult !== undefined) return fluxoResult;
@@ -1877,11 +1876,11 @@ function renderModalContent(modal) {
       '<div class="field"><label>Metragem Total (m²)</label><input id="f-metragem" type="text" inputmode="decimal" placeholder="Ex.: 120 ou 120,5"></div>' +
       '<div class="field"><label>Início</label><input id="f-inicio" type="date" value="' + todayISO() + '"></div>' +
       '<div class="field"><label>Previsão de Término</label><input id="f-fim" type="date"></div>' +
-    '</button>' +
+    '</div>' +
     '<div style="display:flex;gap:8px;margin-top:20px;justify-content:flex-end;">' +
       '<button class="btn btn-ghost" onclick="fecharModal()">Cancelar</button>' +
       '<button class="btn btn-primary" onclick="confirmarNovaObra()">Criar Obra</button>' +
-    '</button>';
+    '</div>';
   }
   if (modal.tipo === 'editar-obra') {
     return '' +
@@ -1896,11 +1895,11 @@ function renderModalContent(modal) {
       '<div class="field"><label>Metragem Total (m²)</label><input id="f-metragem" type="text" inputmode="decimal" value="' + (o.metragemTotal || '') + '" onfocus="this.select()"></div>' +
       '<div class="field"><label>Início</label><input id="f-inicio" type="date" value="' + o.contrato.dataInicio + '"></div>' +
       '<div class="field"><label>Previsão de Término</label><input id="f-fim" type="date" value="' + o.contrato.dataFimPrevista + '"></div>' +
-    '</button>' +
+    '</div>' +
     '<div style="display:flex;gap:8px;margin-top:20px;justify-content:flex-end;">' +
       '<button class="btn btn-ghost" onclick="fecharModal()">Cancelar</button>' +
       '<button class="btn btn-primary" onclick="confirmarEditarObra()">Salvar Alterações</button>' +
-    '</button>';
+    '</div>';
   }
   if (modal.tipo === 'nova-etapa' || modal.tipo === 'editar-etapa') {
     const isEdit = modal.tipo === 'editar-etapa';
@@ -1911,11 +1910,11 @@ function renderModalContent(modal) {
       '<div class="field"><label>Início Previsto</label><input id="e-inicio" type="date" value="' + (modal.inicio || o.contrato.dataInicio || todayISO()) + '"></div>' +
       '<div class="field"><label>Fim Previsto</label><input id="e-fim" type="date" value="' + (modal.fim || '') + '"></div>' +
       '<div class="field" style="grid-column:1/-1;"><label>Metragem desta Etapa (m²)</label><input id="e-metragem" type="text" inputmode="decimal" placeholder="Ex.: 40 ou 40,5" value="' + esc(modal.metragem || '') + '"></div>' +
-    '</button>' +
+    '</div>' +
     '<div style="display:flex;gap:8px;margin-top:20px;justify-content:flex-end;">' +
       '<button class="btn btn-ghost" onclick="fecharModal()">Cancelar</button>' +
       '<button class="btn btn-primary" onclick="' + (isEdit ? 'confirmarEditarEtapa(\'' + modal.etapaId + '\')' : 'confirmarNovaEtapa()') + '">' + (isEdit ? 'Salvar Alterações' : 'Adicionar Etapa') + '</button>' +
-    '</button>';
+    '</div>';
   }
   if (modal.tipo === 'novo-recebimento') {
     /* Auto-fix CRs with valor=0 linked to approved medicoes */
@@ -1964,11 +1963,11 @@ function renderModalContent(modal) {
       '<div class="field"><label>Nº Comprovante / Documento</label><input id="rec-comprovante" placeholder="Ex.: PIX-92831 ou TED-102"></div>' +
       '<div class="field" style="grid-column:1/-1;"><label>Vincular a Medição (Opcional)</label><select id="rec-medicao" onchange="preencherValorMedicao(this)"><option value="">(Pagamento Avulso / Entrada do Contrato)</option>' + medicoesOpts + '</select></div>' +
       '<div class="field" style="grid-column:1/-1;"><label>Observação / Descrição</label><input id="rec-obs" placeholder="Ex.: Pagamento da 1ª parcela de entrada referente ao contrato inicial"></div>' +
-    '</button>' +
+    '</div>' +
     '<div style="display:flex;gap:8px;margin-top:20px;justify-content:flex-end;">' +
       '<button class="btn btn-ghost" onclick="fecharModal()">Cancelar</button>' +
       '<button class="btn btn-primary" onclick="confirmarNovoRecebimento()">Salvar Recebimento & Deduzir Saldo</button>' +
-    '</button>';
+    '</div>';
   }
   if (modal.tipo === 'novo-gasto') {
     const etapasOpts = (o.etapas || []).map(e => '<option value="' + e.id + '">' + esc(e.nome) + '</option>').join('');
@@ -1983,20 +1982,20 @@ function renderModalContent(modal) {
       '<div class="field"><label>Fornecedor</label><input id="g-forn" placeholder="Ex.: Loja da Construção"></div>' +
       '<div class="field" style="grid-column:1/-1;"><label>Vincular a Etapa do Cronograma</label><select id="g-etapa"><option value="">(Geral da Obra / Sem etapa específica)</option>' + etapasOpts + '</select></div>' +
       '<div class="field" style="grid-column:1/-1;"><label>Nº da Nota Fiscal / Recibo</label><input id="g-nf" placeholder="Ex.: NF-10293"></div>' +
-    '</button>' +
+    '</div>' +
     /* STATUS DE PAGAMENTO */
     '<div style="background:var(--bg-sunken);border-radius:10px;padding:12px;margin-top:14px;">' +
       '<div style="color:var(--ink);margin-bottom:10px;">Status de Pagamento</div>' +
       '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
         '<button id="btn-pago" class="btn ' + (!isPendente ? 'btn-primary' : 'btn-ghost') + ' btn-sm" onclick="_syncGastoForm();state.modal.statusPagamento=\'pago\'; render();">Já Paguei</button>' +
         '<button id="btn-pendente" class="btn ' + (isPendente ? 'btn-primary' : 'btn-ghost') + ' btn-sm" onclick="_syncGastoForm();state.modal.statusPagamento=\'pendente\'; render();">A Pagar</button>' +
-      '</button>' +
+      '</div>' +
       (isPendente ? '<div class="field" style="margin-top:10px;"><label>Data de Vencimento</label><input id="g-vencimento" type="date" value="' + (modal.vencimento || '') + '" onchange="state.modal.vencimento=this.value;"></div>' : '') +
-    '</button>' +
+    '</div>' +
     '<div style="display:flex;gap:8px;margin-top:20px;justify-content:flex-end;">' +
       '<button class="btn btn-ghost" onclick="fecharModal()">Cancelar</button>' +
       '<button class="btn btn-primary" onclick="confirmarNovoGasto()">Lançar Gasto (Financeiro)</button>' +
-    '</button>';
+    '</div>';
   }
   if (modal.tipo === 'novo-trabalhador' || modal.tipo === 'editar-trabalhador') {
     const isEdit = modal.tipo === 'editar-trabalhador';
@@ -2006,16 +2005,12 @@ function renderModalContent(modal) {
       '<div class="field" style="grid-column:1/-1;"><label>Nome Completo</label><input id="t-nome" placeholder="Ex.: João da Silva" value="' + esc(modal.nome || '') + '"></div>' +
       '<div class="field"><label>Função</label><input id="t-funcao" placeholder="Ex.: Pedreiro, Servente, Eletricista" value="' + esc(modal.funcao || 'Pedreiro') + '"></div>' +
       '<div class="field"><label>Valor Atual da Diária (R$)</label><input id="t-diaria" type="text" inputmode="decimal" placeholder="Ex.: 180,00" value="' + esc(modal.valorDiaria || '') + '"></div>' +
-      '<div class="field"><label>Ciclo de Pagamento</label><select id="t-ciclo">' +
-        '<option value="quinzenal" ' + (modal.ciclo==='quinzenal'?'selected':'') + '>Quinzenal (a cada 15 dias)</option>' +
-        '<option value="mensal" ' + (modal.ciclo==='mensal'?'selected':'') + '>Mensal (fim do mês)</option>' +
-      '</select></div>' +
-    '</button>' +
+    '</div>' +
     (isEdit ? '<div style="margin-top:12px;padding:8px 12px;background:var(--bg-sunken);border-radius:8px;color:var(--ink-soft);font-size:12px;">💡 <b>Reajuste Salarial:</b> Os novos RDOs lançados utilizarão o valor reajustado. O histórico dos RDOs passados permanecerá inalterado para auditoria.</div>' : '') +
     '<div style="display:flex;gap:8px;margin-top:20px;justify-content:flex-end;">' +
       '<button class="btn btn-ghost" onclick="fecharModal()">Cancelar</button>' +
       '<button class="btn btn-primary" onclick="' + (isEdit ? 'confirmarEditarTrabalhador(\'' + modal.trabId + '\')' : 'confirmarNovoTrabalhador()') + '">' + (isEdit ? 'Salvar Reajuste' : 'Cadastrar Trabalhador') + '</button>' +
-    '</button>';
+    '</div>';
   }
   if (modal.tipo === 'nova-medicao') {
     const todosAps = o.apontamentos.slice().sort((a, b) => b.data.localeCompare(a.data));
@@ -2042,23 +2037,23 @@ function renderModalContent(modal) {
           '<option value="deducao"' + (it.tipo === 'deducao' ? ' selected' : '') + '>− Deduz</option>' +
         '</select>' +
         '<button class="btn btn-ghost btn-sm" onclick="modalRemoveAvulso(' + i + ')">' + ICONS.trash + '</button>' +
-      '</button>').join('');
+      '</div>').join('');
 
     return '' +
     '<h3>Nova Medição</h3>' +
     '<div class="grid grid-2" style="gap:12px;">' +
       '<div class="field"><label>Início do Período</label><input id="m-inicio" type="date" value="' + (modal.periodoInicio || '') + '"></div>' +
       '<div class="field"><label>Fim do Período</label><input id="m-fim" type="date" value="' + (modal.periodoFim || todayISO()) + '"></div>' +
-    '</button>' +
+    '</div>' +
     '<div class="field" style="margin-top:14px;"><label>Apontamentos considerados</label></div>' +
-    '<div style="max-height:190px;overflow-y:auto;border:1px solid var(--line);border-radius:8px;">' + checklistHtml + '</button>' +
+    '<div style="max-height:190px;overflow-y:auto;border:1px solid var(--line);border-radius:8px;">' + checklistHtml + '</div>' +
     '<div class="field" style="margin-top:16px;"><label>Itens Avulsos</label></div>' +
     avulsosHtml +
     '<button class="btn btn-ghost btn-sm" onclick="modalAddAvulso()">' + ICONS.plus + ' Adicionar Item Avulso</button>' +
     '<div style="display:flex;gap:8px;margin-top:20px;justify-content:flex-end;">' +
       '<button class="btn btn-ghost" onclick="fecharModal()">Cancelar</button>' +
       '<button class="btn btn-primary" onclick="confirmarNovaMedicao()">Criar Medição</button>' +
-    '</button>';
+    '</div>';
   }
   if (modal.tipo === 'novo-aditivo') {
     const tipoAtual = modal.tipoAditivo || 'acrescimo';
@@ -2069,17 +2064,17 @@ function renderModalContent(modal) {
       '<div style="display:flex;gap:8px;margin-top:4px;">' +
         '<button style="' + btnStyle(tipoAtual === 'acrescimo', 'var(--good)') + '" onclick="setTipoAditivo(\'acrescimo\')">+ Acréscimo / Aditivo</button>' +
         '<button style="' + btnStyle(tipoAtual === 'deducao', 'var(--bad)') + '" onclick="setTipoAditivo(\'deducao\')">− Dedução / Desconto</button>' +
-      '</button>' +
-    '</button>' +
+      '</div>' +
+    '</div>' +
     '<div class="grid grid-2" style="gap:12px;">' +
       '<div class="field" style="grid-column:1/-1;"><label>Motivo / Descrição do Serviço</label><input id="ad-motivo" placeholder="Ex.: Inclusão de ponto de ar condicionado e forro de gesso" value="' + esc(modal.motivo || '') + '"></div>' +
       '<div class="field"><label>Data</label><input id="ad-data" type="date" value="' + (modal.data || todayISO()) + '"></div>' +
       '<div class="field"><label>Valor do Ajuste (R$)</label><input id="ad-valor" type="text" inputmode="decimal" placeholder="0,00" value="' + esc(modal.valorAjuste || '') + '"></div>' +
-    '</button>' +
+    '</div>' +
     '<div style="display:flex;gap:8px;margin-top:20px;justify-content:flex-end;">' +
       '<button class="btn btn-ghost" onclick="fecharModal()">Cancelar</button>' +
       '<button class="btn btn-primary" onclick="confirmarNovoAditivo()">Registrar Ajuste Contratual</button>' +
-    '</button>';
+    '</div>';
   }
   return '';
 }
@@ -2169,7 +2164,6 @@ function confirmarNovoTrabalhador() {
     nome,
     funcao: document.getElementById('t-funcao').value.trim(),
     valorDiaria,
-    ciclo: document.getElementById('t-ciclo').value || 'mensal',
   });
   fecharModal();
 }
@@ -2904,23 +2898,16 @@ function renderObraVisao(o) {
   const presencaHoje = apontHoje ? (apontHoje.presencasTrabalhadores || []) : [];
   const presentes = presencaHoje.filter(p => p.presente).length;
 
-  const presListaAberta = state.presListaAberta !== false;
   const presencaRows = trabalhadores.length
-    ? '<div onclick="state.presListaAberta=!' + presListaAberta + ';render();" style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;cursor:pointer;border-bottom:1px solid var(--line);">' +
-        '<span style="font-size:13px;color:var(--ink-soft);">Equipe (' + presentes + '/' + trabalhadores.length + ' presentes)</span>' +
-        '<span style="color:var(--ink-faint);font-size:11px;">' + (presListaAberta ? '▲ recolher' : '▼ expandir') + '</span>' +
-      '</div>' +
-      (presListaAberta ? trabalhadores.map(t => {
+    ? trabalhadores.map(t => {
         const pt = presencaHoje.find(p => p.trabalhadorId === t.id);
         const presente = pt ? pt.presente : false;
-        return '<div style="display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line)">' +
-          '<div onclick="togglePresencaRapida(\'' + t.id + '\')" style="flex:1;cursor:pointer;">' +
-            '<div style="font-weight:600;">' + esc(t.nome) + '</div>' +
-            '<div style="color:var(--ink-faint);font-size:12px;">' + esc(t.funcao) + ' · ' + brl(t.valorDiaria) + '/dia</div>' +
-          '</div>' +
-          '<div onclick="togglePresencaRapida(\'' + t.id + '\')" style="width:32px;height:32px;border-radius:50%;background:' + (presente ? 'var(--good)' : 'var(--bg-sunken)') + ';border:2px solid ' + (presente ? 'var(--good)' : 'var(--line)') + ';display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;cursor:pointer;">' + (presente ? '✓' : '') + '</div>' +
+        return '<div onclick="togglePresencaRapida(\'' + t.id + '\')" style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line);cursor:pointer;">' +
+          '<div><div style="font-weight:600;">' + esc(t.nome) + '</div>' +
+          '<div style="color:var(--ink-faint);font-size:12px;">' + esc(t.funcao) + ' · ' + brl(t.valorDiaria) + '/dia</div></div>' +
+          '<div style="width:28px;height:28px;border-radius:50%;background:' + (presente ? 'var(--good)' : 'var(--bg-sunken)') + ';border:2px solid ' + (presente ? 'var(--good)' : 'var(--line)') + ';display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;">' + (presente ? '✓' : '') + '</div>' +
         '</div>';
-      }).join('') : '')
+      }).join('')
     : '<div style="color:var(--ink-faint);padding:12px 0;">Nenhum trabalhador. <span onclick="irTab(\'trabalhadores\')" style="color:var(--accent);cursor:pointer;">Cadastrar →</span></div>';
 
   const gastosHoje = (o.gastos || []).filter(g => g.data === hoje);
@@ -2966,11 +2953,7 @@ function renderObraVisao(o) {
     '</div>' +
     presencaRows +
     '<div style="margin-top:12px;">' +
-      '<div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;">' +
-      '<button class="btn btn-ghost btn-sm" onclick="irTab(\'apontamento\')">+ Terceirizados</button>' +
-      '<button class="btn btn-ghost btn-sm" onclick="abrirRelatorioDia()">📋 Relatório do Dia</button>' +
-    '</div>' +
-      '<button class="btn btn-ghost btn-sm" onclick="abrirRelatorioDia()">' + ICONS.eye + ' Ver Relatório do Dia</button>' +
+      '<button class="btn btn-ghost btn-sm" onclick="irTab(\'apontamento\')">+ Terceirizados / Equipamentos</button>' +
     '</div>' +
   '</div>' +
 
@@ -3076,7 +3059,6 @@ function renderCronogramaTab(o) {
     '<h2 class="section-title"><span class="bar"></span>Cronograma & Etapas</h2>' +
     '<div style="display:flex;gap:6px;">' +
     '<button class="btn btn-ghost btn-sm" onclick="imprimirCronograma()">' + ICONS.print + ' PDF</button>' +
-      '<button class="btn btn-ghost btn-sm" onclick="abrirImportarEtapas()">⬇ Importar Etapas</button>' +
     '<button class="btn btn-primary btn-sm" onclick="abrirModalEtapa()">' + ICONS.plus + ' Nova Etapa</button>' +
   '</div>' +
   '</div>' +
@@ -3480,14 +3462,16 @@ function renderApontamentoFormTab(o) {
     '<div id="help-equipe" style="display:none;margin-bottom:10px;padding:8px 12px;background:var(--bg-sunken);border-radius:8px;color:var(--ink-soft);font-size:12px;">💡 Marque os trabalhadores da sua equipe presentes hoje. As diárias computam automaticamente nos custos financeiros da sua obra.</div>' +
     (trabalhadoresChecklist || '<div class="hint">Nenhum trabalhador cadastrado.</div>') +
   '</div>' +
-  '<div style="margin-bottom:14px;padding:12px;background:var(--bg-sunken);border-radius:10px;border:1px solid var(--line);">' +
-    '<div style="display:flex;align-items:center;justify-content:space-between;">' +
-      '<div>' +
-        '<div style="font-weight:600;font-size:14px;">Efetivo & Terceirizados</div>' +
-        '<div style="color:var(--ink-faint);font-size:12px;">' + (resumoEquipePropriaTxt ? esc(resumoEquipePropriaTxt) : 'Nenhum presente') + (draft.efetivo && draft.efetivo.filter(function(e){return e.funcao;}).length ? ' · ' + draft.efetivo.filter(function(e){return e.funcao;}).length + ' terceiro(s)' : '') + '</div>' +
-      '</div>' +
-      '<button class="btn btn-ghost btn-sm" onclick="abrirModalEfetivo()">' + ICONS.edit + ' Gerenciar</button>' +
+  '<div style="margin-bottom:14px;">' +
+    '<h2 class="section-title"><span class="bar"></span>Efetivo Geral & Terceirizados no Canteiro <button class="help-btn" onclick="toggleDica(\'help-efetivo\')" title="Ver ajuda">?</button></h2>' +
+    '<div id="help-efetivo" style="display:none;margin-bottom:10px;padding:8px 12px;background:var(--bg-sunken);border-radius:8px;color:var(--ink-soft);font-size:12px;">💡 Sua equipe marcada acima entra automaticamente no efetivo. Registre abaixo terceirizados contratados pelo cliente ou terceiros no canteiro (que não saem do seu caixa).</div>' +
+    '<div style="padding:10px 12px;background:var(--bg-sunken);border-radius:8px;margin-bottom:12px;border:1px solid var(--line-strong);">' +
+      '<div style="color:var(--ink);margin-bottom:2px;" class="val-destaque">👷 Sua Equipe em Campo (Computada dos Trabalhadores Presentes):</div>' +
+      '<div style="color:var(--good);">' + (resumoEquipePropriaTxt ? '✓ ' + esc(resumoEquipePropriaTxt) : 'Nenhum integrante da sua equipe marcado presente hoje.') + '</div>' +
     '</div>' +
+    '<div style="color:var(--ink-soft);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.04em;">🛠️ Terceirizados do Cliente / Outras Empreiteiras no Canteiro (Apenas Canteiro):</div>' +
+    efetivoRows +
+    '<button class="btn btn-ghost btn-sm" onclick="draftAddEfetivo()">' + ICONS.plus + ' Adicionar Terceirizado / Empreiteira do Cliente</button>' +
   '</div>' +
   '<div style="margin-bottom:14px;">' +
     '<h2 class="section-title"><span class="bar"></span>Avanço Físico por Etapa <button class="help-btn" onclick="toggleDica(\'help-avanco\')" title="Ver ajuda">?</button></h2>' +
@@ -3606,8 +3590,6 @@ function renderTrabalhadoresTab(o) {
     '</div>';
     const acoesTrab = isTExp
       ? '<div style="display:flex;gap:8px;padding:8px 0 12px;flex-wrap:wrap;border-bottom:1px solid var(--line);">' +
-          '<button class="btn btn-ghost btn-sm" onclick="abrirRelatorioPresencas(\'' + t.id + '\')">📋 Presenças</button>' +
-          '<button class="btn btn-ghost btn-sm" onclick="abrirRelatorioPresencas(\'' + t.id + '\')">Presenças</button>' +
           '<button class="btn btn-ghost btn-sm" onclick="abrirFolhaPagamento(\'' + t.id + '\')">Folha</button>' +
           '<button class="btn btn-ghost btn-sm" onclick="imprimirReciboTrabalhador(\'' + t.id + '\',\'' + folhaDe + '\',\'' + folhaAte + '\')">' + ICONS.print + ' Recibo</button>' +
           '<button class="btn btn-ghost btn-sm" onclick="abrirModalEditarTrabalhador(\'' + t.id + '\')">' + ICONS.edit + ' Editar</button>' +
@@ -4106,353 +4088,6 @@ function imprimirCronograma() {
       '<tbody>'+linhas+'</tbody>' +
     '</table>';
   _abrirImpressao(body, 'Cronograma-'+o.nome);
-}
-
-
-function abrirImportarEtapas() {
-  state.modal = { tipo: 'importar-etapas', texto: '' };
-  render();
-}
-
-function renderModalImportarEtapas(modal) {
-  return '<h3>Importar Etapas do OrcInteligente</h3>' +
-    '<p style="color:var(--ink-soft);font-size:13px;margin-bottom:12px;">Cole abaixo o conteúdo exportado pelo OrcInteligente (botão &#11015; ObraFlow), ou digite manualmente uma etapa por linha no formato:<br><code style="background:var(--bg-sunken);padding:2px 6px;border-radius:4px;">Nome da Etapa;Valor</code></p>' +
-    '<div class="field"><label>Etapas (uma por linha)</label>' +
-    '<textarea id="imp-etapas" rows="10" style="font-family:monospace;font-size:13px;" placeholder="Fundação;15000\nAlvenaria;25000\nReboco;8000">' + esc(modal.texto||'') + '</textarea></div>' +
-    '<div style="display:flex;gap:8px;margin-top:16px;justify-content:flex-end;">' +
-      '<button class="btn btn-ghost" onclick="fecharModal()">Cancelar</button>' +
-      '<button class="btn btn-primary" onclick="confirmarImportarEtapas()">Importar</button>' +
-    '</div>';
-}
-
-function confirmarImportarEtapas() {
-  const o = getObra(); if (!o) return;
-  const texto = document.getElementById('imp-etapas').value.trim();
-  if (!texto) { toast('Cole o conteúdo exportado'); return; }
-  const linhas = texto.split('\n').map(l => l.trim()).filter(Boolean);
-  let criadas = 0, erros = 0;
-  linhas.forEach(linha => {
-    const partes = linha.split(';');
-    if (partes.length < 2) { erros++; return; }
-    const nome = partes[0].trim();
-    const valor = parseMoeda(partes[1].trim());
-    if (!nome || !valor) { erros++; return; }
-    o.etapas = o.etapas || [];
-    o.contadores = o.contadores || {};
-    o.contadores.etapa = (o.contadores.etapa||0)+1;
-    o.etapas.push({
-      id: uid(),
-      numero: String(o.contadores.etapa).padStart(4,'0'),
-      nome: nome,
-      valorFixo: valor,
-      metragemPrevista: 0,
-      dataInicioPrev: '',
-      dataFimPrev: '',
-      ordem: o.etapas.length,
-    });
-    criadas++;
-  });
-  salvar(); fecharModal(); render();
-  toast(criadas + ' etapa(s) importada(s)' + (erros ? ' · ' + erros + ' linha(s) inválida(s)' : ''));
-}
-
-
-function abrirRelatorioDia() {
-  const dataPresenca = state.presencaData || todayISO();
-  state.modal = { tipo: 'relatorio-dia', data: dataPresenca };
-  render();
-}
-
-function renderModalRelatorioDia(modal) {
-  const o = getObra(); if (!o) return '';
-  const data = modal.data || todayISO();
-  const apt = (o.apontamentos||[]).find(a => a.data === data);
-  const presencas = apt ? (apt.presencasTrabalhadores||[]) : [];
-  const trabalhadores = o.trabalhadores || [];
-
-  /* Lista de presentes */
-  const presentes = presencas.filter(p=>p.presente);
-  const linhas = trabalhadores.map(t => {
-    const pt = presencas.find(p=>p.trabalhadorId===t.id);
-    const presente = pt && pt.presente;
-    const valDiaria = pt && pt.valorDiaria != null ? pt.valorDiaria : t.valorDiaria;
-    return '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);">' +
-      '<div style="flex:1;">' +
-        '<div style="font-weight:600;">' + esc(t.nome) + '</div>' +
-        '<div style="color:var(--ink-faint);font-size:12px;">' + esc(t.funcao) + ' · ' + brl(valDiaria) + '/dia</div>' +
-      '</div>' +
-      '<div onclick="togglePresencaDataModal(\'' + t.id + '\',\'' + data + '\')" style="padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;background:' + (presente?'var(--good)':'var(--bg-sunken)') + ';color:' + (presente?'#fff':'var(--ink-soft)') + ';border:1px solid ' + (presente?'var(--good)':'var(--line)') + ';">' + (presente?'✓ Presente':'Ausente') + '</div>' +
-    '</div>';
-  }).join('');
-
-  /* Terceiros */
-  const terceiros = apt ? (apt.efetivo||[]).filter(e=>e.funcao) : [];
-  const terceirosHtml = terceiros.length
-    ? terceiros.map((e,i) => '<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line);">' +
-        '<div style="flex:1;">' + esc(e.qtd||1) + 'x ' + esc(e.funcao) + (e.empresa?' ('+esc(e.empresa)+')':'') + '</div>' +
-        '<button class="btn btn-ghost btn-sm" style="color:var(--bad);" onclick="removerTerceiroApt(\'' + (apt?apt.id:'') + '\',' + i + ')">✕</button>' +
-      '</div>').join('')
-    : '<div style="color:var(--ink-faint);font-size:13px;">Nenhum terceirizado registrado.</div>';
-
-  return '<h3>Relatório do Dia — ' + fmtData(data) + '</h3>' +
-    '<div style="background:var(--bg-sunken);border-radius:8px;padding:10px 14px;margin-bottom:14px;">' +
-      '<div style="font-size:13px;color:var(--ink-soft);">' + presentes.length + ' presente(s) de ' + trabalhadores.length + ' · ' + (apt?'RDO-'+(apt.numero||'?'):'Sem apontamento') + '</div>' +
-    '</div>' +
-    '<div style="font-weight:600;margin-bottom:8px;">Equipe Própria</div>' +
-    (linhas || '<div class="empty">Nenhum trabalhador cadastrado.</div>') +
-    '<div style="font-weight:600;margin:14px 0 8px;">Terceirizados</div>' +
-    terceirosHtml +
-    '<div style="display:flex;gap:8px;margin-top:18px;flex-wrap:wrap;justify-content:flex-end;">' +
-      '<button class="btn btn-ghost" onclick="fecharModal()">Fechar</button>' +
-      '<button class="btn btn-ghost btn-sm" onclick="abrirFolhaDia(\'' + data + '\')">Ver Folha</button>' +
-    '</div>';
-}
-
-function togglePresencaDataModal(trabId, data) {
-  const o = getObra(); if (!o) return;
-  let apt = (o.apontamentos||[]).find(a=>a.data===data);
-  if (!apt) {
-    o.apontamentos = o.apontamentos || [];
-    o.contadores = o.contadores || {};
-    o.contadores.apontamento = (o.contadores.apontamento||0)+1;
-    apt = {
-      id: uid(), numero: String(o.contadores.apontamento).padStart(4,'0'),
-      data: data, clima: 'bom', presencasTrabalhadores: [],
-      efetivo: [], equipamentos: [], progresso: [], fotos: [], ocorrencias: ''
-    };
-    o.apontamentos.push(apt);
-  }
-  apt.presencasTrabalhadores = apt.presencasTrabalhadores || [];
-  const t = (o.trabalhadores||[]).find(x=>x.id===trabId);
-  const idx = apt.presencasTrabalhadores.findIndex(p=>p.trabalhadorId===trabId);
-  if (idx === -1) {
-    apt.presencasTrabalhadores.push({ trabalhadorId: trabId, presente: true, valorDiaria: t?t.valorDiaria:0 });
-    /* Gera diária no fluxo */
-    if (t) {
-      o.contasPagar = o.contasPagar || [];
-      o.contadores.contaPagar = (o.contadores.contaPagar||0)+1;
-      o.contasPagar.push({
-        id: uid(), numero: String(o.contadores.contaPagar).padStart(4,'0'),
-        descricao: 'Diária — ' + t.nome + ' — ' + fmtData(data),
-        valor: Number(t.valorDiaria)||0, dataVencimento: data, dataPagamento: '',
-        status: 'pendente', categoria: 'mao_de_obra', etapaId: '',
-        observacao: 'RDO-'+apt.numero, origem: 'apontamento',
-        origemId: apt.id, trabalhadorId: trabId, formaPagamento: '',
-      });
-    }
-  } else {
-    const atual = apt.presencasTrabalhadores[idx].presente;
-    apt.presencasTrabalhadores[idx].presente = !atual;
-    if (atual) {
-      o.contasPagar = (o.contasPagar||[]).filter(cp=>!(cp.trabalhadorId===trabId&&cp.origemId===apt.id&&cp.origem==='apontamento'));
-    }
-  }
-  salvar();
-  state.modal = { tipo: 'relatorio-dia', data: data };
-  render();
-}
-
-
-function abrirRelatorioDia() {
-  state.modal = { tipo: 'relatorio-dia', data: state.presencaData || todayISO() };
-  render();
-}
-
-function renderModalRelatorioDia(modal) {
-  const o = getObra(); if (!o) return '';
-  const data = modal.data || todayISO();
-  const apt = (o.apontamentos||[]).find(a=>a.data===data);
-  const presencas = apt ? (apt.presencasTrabalhadores||[]) : [];
-  const trabalhadores = o.trabalhadores || [];
-  const presentes = presencas.filter(p=>p.presente).length;
-  const terceiros = apt ? (apt.efetivo||[]).filter(e=>e.funcao) : [];
-
-  var linhas = trabalhadores.map(function(t) {
-    var pt = presencas.find(function(p){return p.trabalhadorId===t.id;});
-    var presente = pt && pt.presente;
-    var valDiaria = pt && pt.valorDiaria != null ? Number(pt.valorDiaria) : Number(t.valorDiaria);
-    return '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);">' +
-      '<div style="flex:1;"><div style="font-weight:600;">' + esc(t.nome) + '</div>' +
-      '<div style="color:var(--ink-faint);font-size:12px;">' + esc(t.funcao) + ' · ' + brl(valDiaria) + '/dia</div></div>' +
-      '<div data-tid="'+t.id+'" data-dt="'+data+'" onclick="togglePresencaDataModal(this.dataset.tid,this.dataset.dt)" style="padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;background:'+(presente?'var(--good)':'var(--bg-sunken)')+';color:'+(presente?'#fff':'var(--ink-soft)')+';border:1px solid '+(presente?'var(--good)':'var(--line)')+';">'+(presente?'✓ Presente':'Ausente')+'</div>' +
-    '</div>';
-  }).join('');
-
-  var terc = terceiros.map(function(e,i) {
-    return '<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line);">' +
-      '<div style="flex:1;">' + esc(e.qtd||1) + 'x ' + esc(e.funcao||'') + (e.empresa?' ('+esc(e.empresa)+')':'') + '</div>' +
-    '</div>';
-  }).join('') || '<div style="color:var(--ink-faint);font-size:13px;">Nenhum.</div>';
-
-  return '<h3>Relatório do Dia — ' + fmtData(data) + '</h3>' +
-    '<div style="background:var(--bg-sunken);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:13px;color:var(--ink-soft);">' +
-      presentes + ' presente(s) de ' + trabalhadores.length + ' · ' + (apt?'RDO-'+(apt.numero||'?'):'Sem apontamento ainda') +
-    '</div>' +
-    '<div style="font-weight:600;margin-bottom:8px;">Equipe Própria</div>' + (linhas||'<div class="empty">Sem trabalhadores.</div>') +
-    '<div style="font-weight:600;margin:14px 0 8px;">Terceirizados</div>' + terc +
-    '<div style="display:flex;gap:8px;margin-top:16px;justify-content:flex-end;">' +
-      '<button class="btn btn-ghost" onclick="fecharModal()">Fechar</button>' +
-    '</div>';
-}
-
-function togglePresencaDataModal(trabId, data) {
-  const o = getObra(); if (!o) return;
-  var apt = (o.apontamentos||[]).find(function(a){return a.data===data;});
-  if (!apt) {
-    o.apontamentos = o.apontamentos || [];
-    o.contadores = o.contadores || {};
-    o.contadores.apontamento = (o.contadores.apontamento||0)+1;
-    apt = { id: uid(), numero: String(o.contadores.apontamento).padStart(4,'0'),
-      data: data, clima: 'bom', presencasTrabalhadores: [], efetivo: [], equipamentos: [], progresso: [], fotos: [], ocorrencias: '' };
-    o.apontamentos.push(apt);
-  }
-  apt.presencasTrabalhadores = apt.presencasTrabalhadores || [];
-  var t = (o.trabalhadores||[]).find(function(x){return x.id===trabId;});
-  var idx = apt.presencasTrabalhadores.findIndex(function(p){return p.trabalhadorId===trabId;});
-  if (idx === -1) {
-    apt.presencasTrabalhadores.push({ trabalhadorId: trabId, presente: true, valorDiaria: t?Number(t.valorDiaria):0 });
-    if (t) {
-      o.contasPagar = o.contasPagar || [];
-      o.contadores.contaPagar = (o.contadores.contaPagar||0)+1;
-      o.contasPagar.push({ id: uid(), numero: String(o.contadores.contaPagar).padStart(4,'0'),
-        descricao: 'Diária — ' + t.nome + ' — ' + fmtData(data), valor: Number(t.valorDiaria)||0,
-        dataVencimento: data, dataPagamento: '', status: 'pendente', categoria: 'mao_de_obra',
-        etapaId: '', observacao: 'RDO-'+apt.numero, origem: 'apontamento',
-        origemId: apt.id, trabalhadorId: trabId, formaPagamento: '' });
-    }
-  } else {
-    var atual = apt.presencasTrabalhadores[idx].presente;
-    apt.presencasTrabalhadores[idx].presente = !atual;
-    if (atual) {
-      o.contasPagar = (o.contasPagar||[]).filter(function(cp){return !(cp.trabalhadorId===trabId&&cp.origemId===apt.id&&cp.origem==='apontamento');});
-    }
-  }
-  salvar();
-  var curModal = state.modal ? Object.assign({}, state.modal) : null;
-  if (curModal) state.modal = curModal;
-  render();
-}
-
-function abrirRelatorioPresencas(trabId) {
-  state.modal = { tipo: 'relatorio-presencas', trabId: trabId };
-  render();
-}
-
-function renderModalRelatorioPresencas(modal) {
-  const o = getObra(); if (!o) return '';
-  const trab = (o.trabalhadores||[]).find(function(t){return t.id===modal.trabId;});
-  if (!trab) return '';
-  const folhaDe  = state.folhaDe  || (o.contrato&&o.contrato.dataInicio) || todayISO();
-  const folhaAte = state.folhaAte || todayISO();
-  const apts = (o.apontamentos||[]).filter(function(a){return a.data>=folhaDe&&a.data<=folhaAte;}).sort(function(a,b){return a.data.localeCompare(b.data);});
-  var h = '';
-  h += '<h3>Presenças — ' + esc(trab.nome) + '</h3>';
-  h += '<div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">';
-  h += '<div class="field" style="flex:1;"><label>De</label><input type="date" value="' + folhaDe + '" onchange="state.folhaDe=this.value;_reabrirPresencas(\''+trab.id+'\');"></div>';
-  h += '<div class="field" style="flex:1;"><label>Até</label><input type="date" value="' + folhaAte + '" onchange="state.folhaAte=this.value;_reabrirPresencas(\''+trab.id+'\');"></div>';
-  h += '</div>';
-  var diasPres = 0; var total = 0;
-  apts.forEach(function(apt) {
-    var pt = (apt.presencasTrabalhadores||[]).find(function(p){return p.trabalhadorId===trab.id;});
-    var presente = pt && pt.presente;
-    var valDiaria = pt && pt.valorDiaria != null ? Number(pt.valorDiaria) : Number(trab.valorDiaria);
-    if (presente) { diasPres++; total += valDiaria; }
-  });
-  h += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;">';
-  h += '<div class="kpi"><div class="lbl">Dias</div><div class="val">' + diasPres + '</div></div>';
-  h += '<div class="kpi"><div class="lbl">Total</div><div class="val">' + brl(total) + '</div></div>';
-  h += '<div class="kpi"><div class="lbl">Diária</div><div class="val">' + brl(trab.valorDiaria) + '</div></div>';
-  h += '</div>';
-  if (apts.length) {
-    apts.forEach(function(apt) {
-      var pt = (apt.presencasTrabalhadores||[]).find(function(p){return p.trabalhadorId===trab.id;});
-      var presente = pt && pt.presente;
-      var valDiaria = pt && pt.valorDiaria != null ? Number(pt.valorDiaria) : Number(trab.valorDiaria);
-      var dow = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'][new Date(apt.data+'T12:00:00').getDay()];
-      var bg = presente ? 'var(--good)' : 'var(--bg-sunken)';
-      var col = presente ? '#fff' : 'var(--ink-soft)';
-      var bdr = presente ? 'var(--good)' : 'var(--line)';
-      var lbl = presente ? '✓ Pres.' : 'Ausente';
-      h += '<div style="display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--line);">';
-      h += '<div style="flex:1;"><div style="font-weight:600;">' + fmtData(apt.data) + ' <span style="color:var(--ink-faint);font-size:11px;">' + dow + '</span></div>';
-      h += '<div style="color:var(--ink-faint);font-size:11px;">RDO-' + (apt.numero||'?') + '</div></div>';
-      h += '<div style="font-size:13px;color:var(--ink-soft);margin-right:8px;">' + (presente?brl(valDiaria):'—') + '</div>';
-      h += '<div data-tid="' + trab.id + '" data-dt="' + apt.data + '" onclick="togglePresencaDataModal(this.dataset.tid,this.dataset.dt);_reabrirPresencas(this.dataset.tid);" style="padding:5px 10px;border-radius:16px;font-size:12px;font-weight:600;cursor:pointer;background:' + bg + ';color:' + col + ';border:1px solid ' + bdr + ';">' + lbl + '</div>';
-      h += '</div>';
-    });
-  } else {
-    h += '<div class="empty">Nenhum apontamento no período.</div>';
-  }
-  h += '<div style="margin-top:14px;background:var(--bg-sunken);border-radius:8px;padding:12px;">';
-  h += '<div style="font-size:12px;color:var(--ink-soft);margin-bottom:8px;">Adicionar dia avulso:</div>';
-  h += '<div style="display:flex;gap:8px;align-items:center;">';
-  h += '<input type="date" id="pres-add-data" max="' + todayISO() + '" style="flex:1;padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);">';
-  h += '<button class="btn btn-primary btn-sm" data-tid="' + trab.id + '" onclick="adicionarDiaAvulso(this.dataset.tid)">+ Dia</button>';
-  h += '</div></div>';
-  h += '<div style="display:flex;gap:8px;margin-top:14px;justify-content:flex-end;flex-wrap:wrap;">';
-  h += '<button class="btn btn-ghost" onclick="fecharModal()">Fechar</button>';
-  h += '<button class="btn btn-ghost btn-sm" data-tid="' + trab.id + '" data-de="' + folhaDe + '" data-ate="' + folhaAte + '" onclick="imprimirReciboTrabalhador(this.dataset.tid,this.dataset.de,this.dataset.ate)">' + ICONS.print + ' Recibo</button>';
-  h += '<button class="btn btn-primary" data-tid="' + trab.id + '" onclick="abrirFolhaPagamento(this.dataset.tid)">Folha Pag.</button>';
-  h += '</div>';
-  return h;
-}
-
-function adicionarDiaAvulso(trabId) {
-  const data = document.getElementById('pres-add-data').value;
-  if (!data) { toast('Selecione a data'); return; }
-  togglePresencaDataModal(trabId, data);
-  state.modal = { tipo: 'relatorio-presencas', trabId: trabId };
-  render();
-  toast('Dia ' + fmtData(data) + ' adicionado');
-}
-
-
-function _reabrirPresencas(trabId) {
-  state.modal = { tipo: 'relatorio-presencas', trabId: trabId };
-  render();
-}
-function _reabrirDia(data) {
-  state.modal = { tipo: 'relatorio-dia', data: data };
-  render();
-}
-
-
-function abrirModalEfetivo() {
-  state.modal = { tipo: 'modal-efetivo' };
-  render();
-}
-
-function renderModalEfetivo(modal) {
-  const o = getObra(); if (!o) return '';
-  const draft = state.apontamentoDraft || {};
-  const efetivo = draft.efetivo || [];
-  const trabalhadores = o.trabalhadores || [];
-  const dataPresenca = state.presencaData || todayISO();
-  const apontHoje = (o.apontamentos||[]).find(a=>a.data===dataPresenca) || {};
-  const presencas = apontHoje.presencasTrabalhadores || [];
-  const presentes = trabalhadores.filter(t=>{const p=presencas.find(x=>x.trabalhadorId===t.id);return p&&p.presente;});
-
-  var eqRows = efetivo.map(function(e,i) {
-    return '<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line);">' +
-      '<div style="flex:1;">' +
-        '<input value="' + esc(e.funcao||'') + '" placeholder="Função/Serviço" data-idx="'+i+'" data-fld="funcao" onchange="draftSetEfetivo(Number(this.dataset.idx),this.dataset.fld,this.value)" style="width:100%;padding:6px 8px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-size:13px;">' +
-      '</div>' +
-      '<input value="' + esc(e.qtd||'1') + '" type="number" min="1" max="99" data-idx="'+i+'" data-fld="qtd" onchange="draftSetEfetivo(Number(this.dataset.idx),this.dataset.fld,this.value)" style="width:50px;padding:6px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:var(--ink);text-align:center;">' +
-      '<button class="btn btn-ghost btn-sm" style="color:var(--bad);" data-idx="'+i+'" onclick="draftRemEfetivo(Number(this.dataset.idx))">' + ICONS.trash + '</button>' +
-    '</div>';
-  }).join('');
-
-  return '<h3>Efetivo & Terceirizados</h3>' +
-    (presentes.length ? '<div style="background:var(--bg-sunken);border-radius:8px;padding:10px 14px;margin-bottom:14px;">' +
-      '<div style="font-size:12px;color:var(--ink-soft);margin-bottom:4px;">Equipe Própria (via presença):</div>' +
-      '<div style="color:var(--good);font-size:13px;">✓ ' + presentes.map(function(t){return esc(t.nome);}).join(', ') + '</div>' +
-    '</div>' : '') +
-    '<div style="font-weight:600;margin-bottom:8px;font-size:13px;">Terceirizados / Outras Empreiteiras:</div>' +
-    (efetivo.length ? '<div>' + eqRows + '</div>' : '<div style="color:var(--ink-faint);font-size:13px;margin-bottom:8px;">Nenhum terceirizado.</div>') +
-    '<button class="btn btn-ghost btn-sm" onclick="draftAddEfetivo()" style="margin-top:8px;">' + ICONS.plus + ' Adicionar</button>' +
-    '<div style="display:flex;gap:8px;margin-top:16px;justify-content:flex-end;">' +
-      '<button class="btn btn-primary" onclick="fecharModal()">Pronto</button>' +
-    '</div>';
 }
 
 function _abrirImpressao(bodyHtml, titulo) {
@@ -5022,7 +4657,7 @@ function renderFinanceiroTab(o) {
     const valorOrcado = valorPrevistoEtapa(o, e);
     const valLiberado = valorLiberadoEtapa(o, e.id);
     const comprasEtapa = totalGastosCompras(o, e.id);
-    const saldoEtapa = valLiberado - comprasEtapa;
+    const saldoEtapa = valorOrcado - comprasEtapa;
     const m2Prev = Number(e.metragemPrevista) || 0;
     const m2Exec = m2ExecutadoEtapa(o, e.id);
     const pctE   = m2Prev > 0 ? Math.round(m2Exec/m2Prev*100) : 0;
