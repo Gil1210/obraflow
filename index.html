@@ -104,8 +104,7 @@ body, p, span, div, td, th, label, input, select, textarea, button, a,
 .side-brand .tag{color:#9BA3AC;margin-top:2px;letter-spacing:.04em;text-transform:uppercase;}
 .side-nav{flex:1;overflow-y:auto;padding:14px 10px;}
 .side-section-label{letter-spacing:.08em;text-transform:uppercase;color:#7C848D;margin:16px 10px 6px;}
-.side-group-label{letter-spacing:.06em;text-transform:uppercase;font-size:10px;color:#5A6472;margin:14px 10px 4px;padding:0 2px;font-weight:600;}
-.side-item{display:flex;align-items:center;gap:10px;padding:12px 12px;min-height:44px;border-radius:8px;color:#C9CDD2;cursor:pointer;margin-bottom:2px;transition:background .12s;background:none;border:none;width:100%;text-align:left;font-family:inherit;font-size:inherit;}
+.side-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;color:#C9CDD2;cursor:pointer;margin-bottom:2px;transition:background .12s;}
 .side-item:hover{background:rgba(255,255,255,.08);color:#FFFFFF;}
 .side-item.active{background:var(--accent);color:#FFFFFF;}
 .side-item svg{flex:none;opacity:.9;}
@@ -138,10 +137,10 @@ body, p, span, div, td, th, label, input, select, textarea, button, a,
 h2.section-title{margin:0 0 12px;display:flex;align-items:center;gap:8px;color:var(--ink);}
 h2.section-title .bar{width:4px;height:16px;background:var(--accent);border-radius:2px;display:inline-block;}
 
-.help-btn{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;min-width:28px;border-radius:50%;background:var(--bg-sunken);color:var(--ink-faint);border:1px solid var(--line-strong);font-size:11px;cursor:pointer;transition:all .15s ease;margin-left:4px;vertical-align:middle;}
+.help-btn{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:var(--bg-sunken);color:var(--ink-faint);border:1px solid var(--line-strong);font-size:11px;cursor:pointer;transition:all .15s ease;margin-left:4px;vertical-align:middle;}
 .help-btn:hover{background:var(--accent-soft);color:var(--accent);border-color:var(--accent);}
 
-.btn{display:inline-flex;align-items:center;gap:7px;border-radius:8px;padding:11px 15px;min-height:44px;border:1px solid transparent;white-space:nowrap;transition:all .15s ease;}
+.btn{display:inline-flex;align-items:center;gap:7px;border-radius:8px;padding:9px 15px;border:1px solid transparent;white-space:nowrap;transition:all .15s ease;}
 .btn-primary{background:var(--accent);color:#fff;}
 .btn-primary:hover{background:var(--accent-dark);}
 .btn-ghost{background:var(--bg-card);color:var(--ink);border-color:var(--line-strong);}
@@ -247,8 +246,6 @@ input, select, textarea {
   border-radius: 10px !important;
 }
 
-@media (max-width:414px){
-  .grid-2{grid-template-columns:1fr;}
   .grid-3{grid-template-columns:repeat(2,1fr);}
   .grid-4{grid-template-columns:repeat(2,1fr);}
   .modal{padding:12px;border-radius:10px;}
@@ -1295,7 +1292,7 @@ function toggleMenu() { state.mobileMenuOpen = !state.mobileMenuOpen; render(); 
 
 function renderShell(contentHtml, obra) {
   const navItem = (tab, icon, label) => obra ? (
-    '<button class="side-item ' + (state.obraTab === tab ? 'active' : '') + '" onclick="irTab(\'' + tab + '\')">' + ICONS[icon] + '<span>' + label + '</span></button>'
+    '<div class="side-item ' + (state.obraTab === tab ? 'active' : '') + '" onclick="irTab(\'' + tab + '\')">' + ICONS[icon] + '<span>' + label + '</span></div>'
   ) : '';
   const menuOpen = !!state.mobileMenuOpen;
 
@@ -1305,46 +1302,46 @@ function renderShell(contentHtml, obra) {
     '<div class="side ' + (menuOpen ? 'open' : '') + '">' +
       '<div class="side-brand"><div class="logo">Obra<em>Flow</em></div><div class="tag">Gestão de Obras</div></div>' +
       '<div class="side-nav">' +
-        '<button class="side-item ' + (state.screen === 'painel' ? 'active' : '') + '" onclick="irPainel()" role="menuitem">' + ICONS.painel + '<span>Dashboard Geral</span></button>' +
-        '<button class="side-item ' + (state.screen === 'config' ? 'active' : '') + '" onclick="irConfig()" role="menuitem">' + ICONS.config + '<span>Configurações & Temas</span></button>' +
+        '<div class="side-item ' + (state.screen === 'painel' ? 'active' : '') + '" onclick="irPainel()">' + ICONS.painel + '<span>Dashboard Geral</span></div>' +
+        '<div class="side-item ' + (state.screen === 'config' ? 'active' : '') + '" onclick="irConfig()">' + ICONS.config + '<span>Configurações & Temas</span></div>' +
         (obra ? (
           '<div class="side-section-label">' + esc(obra.nome) + '</div>' +
-          '<div class="side-group-label">HOJE</div>' +
           navItem('visao', 'obra', 'Visão da Obra') +
-          navItem('apontamento', 'apontamento', 'Apontamento') +
-          '<div class="side-group-label">ACOMPANHAMENTO</div>' +
-          navItem('rdo', 'rdo', 'RDO') +
           navItem('cronograma', 'cronograma', 'Cronograma') +
+          navItem('apontamento', 'apontamento', 'Apontamento Diário') +
+          navItem('rdo', 'rdo', 'RDO') +
           navItem('curva', 'curva', 'Curva S') +
           navItem('medicao', 'medicao', 'Medição') +
-          navItem('galeria', 'galeria', 'Galeria') +
-          '<div class="side-group-label">FINANCEIRO & EQUIPE</div>' +
           navItem('gastos', 'gastos', 'Gastos & Compras') +
           navItem('trabalhadores', 'trabalhadores', 'Diárias / Equipe') +
+          navItem('galeria', 'galeria', 'Galeria de Fotos') +
           navItem('financeiro', 'financeiro', 'Financeiro Total') +
           navItem('fluxo', 'fluxo', 'Fluxo de Caixa')
         ) : '') +
+      '</div>' +
       '<div class="side-foot">ObraFlow · uso offline<br>Dados salvos neste aparelho</div>' +
     '</div>' +
     '<div class="main">' +
       '<div class="topbar">' +
         '<div style="display:flex;align-items:center;min-width:0;">' +
-        '<button class="hamb" onclick="toggleMenu()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>' +
-        '<div style="min-width:0;overflow:hidden;"><h1 style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (obra ? esc(obra.nome) : (state.screen === 'config' ? 'Configurações' : 'Dashboard Geral')) + '</h1>' +
-        (obra ? '<div class="sub">' + esc(obra.cliente || 'Sem cliente definido') + '</div>' : (state.screen === 'config' ? '<div class="sub">Empresa & Preferências</div>' : '<div class="sub">Visão geral de todas as obras ativas</div>')) +
-        '</div></div>' +
+          '<button class="hamb" onclick="toggleMenu()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>' +
+          '<div style="min-width:0;overflow:hidden;"><h1 style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (obra ? esc(obra.nome) : (state.screen === 'config' ? 'Configurações' : 'Dashboard Geral')) + '</h1>' +
+          (obra ? '<div class="sub">' + esc(obra.cliente || 'Sem cliente definido') + '</div>' : (state.screen === 'config' ? '<div class="sub">Empresa & Preferências</div>' : '<div class="sub">Visão geral de todas as obras ativas</div>')) +
+          '</div>' +
+        '</div>' +
         (obra ? (
           '<div style="display:flex;gap:6px;flex-none;">' +
             '<button class="btn btn-ghost btn-sm" onclick="abrirModalEditarObra()" title="Editar dados da obra">' + ICONS.edit + '</button>' +
-            '<button class="btn btn-ghost btn-sm" style="color:var(--bad);" onclick="excluirObra(\'' + obra.id + '\')" title="Excluir obra">' + ICONS.trash + '</button>' +
+            '<button class="btn btn-ghost btn-sm" style="color:var(--bad);" onclick="excluirObra(\'' + obra.id + '\')\" title="Excluir obra">' + ICONS.trash + '</button>' +
             '<button class="btn btn-ghost btn-sm" onclick="irPainel()" title="Voltar ao painel">' + ICONS.painel + '</button>' +
           '</div>'
         ) : '') +
       '</div>' +
-      '<div id="root" class="content"></div>' +
+      '<div id="root" class="content">' + contentHtml + '</div>' +
     '</div>' +
   '</div>';
 }
+
 
 function renderPainelGeral() {
   const obras = state.obras;
@@ -3479,7 +3476,7 @@ function renderApontamentoFormTab(o) {
     '</div>' +
   '</div>' +
   '<div style="margin-bottom:14px;">' +
-    '<h2 class="section-title"><span class="bar"></span>Presença da Sua Equipe (Gera Custo de Diária) <button class="help-btn" aria-label="Ajuda" onclick="toggleDica(\'help-equipe\')" title="Ver ajuda">?</button></h2>' +
+    '<h2 class="section-title"><span class="bar"></span>Presença da Sua Equipe (Gera Custo de Diária) <button class="help-btn" onclick="toggleDica(\'help-equipe\')" title="Ver ajuda">?</button></h2>' +
     '<div id="help-equipe" style="display:none;margin-bottom:10px;padding:8px 12px;background:var(--bg-sunken);border-radius:8px;color:var(--ink-soft);font-size:12px;">💡 Marque os trabalhadores da sua equipe presentes hoje. As diárias computam automaticamente nos custos financeiros da sua obra.</div>' +
     (trabalhadoresChecklist || '<div class="hint">Nenhum trabalhador cadastrado.</div>') +
   '</div>' +
@@ -3493,7 +3490,7 @@ function renderApontamentoFormTab(o) {
     '</div>' +
   '</div>' +
   '<div style="margin-bottom:14px;">' +
-    '<h2 class="section-title"><span class="bar"></span>Avanço Físico por Etapa <button class="help-btn" aria-label="Ajuda" onclick="toggleDica(\'help-avanco\')" title="Ver ajuda">?</button></h2>' +
+    '<h2 class="section-title"><span class="bar"></span>Avanço Físico por Etapa <button class="help-btn" onclick="toggleDica(\'help-avanco\')" title="Ver ajuda">?</button></h2>' +
     '<div id="help-avanco" style="display:none;margin-bottom:10px;padding:8px 12px;background:var(--bg-sunken);border-radius:8px;color:var(--ink-soft);font-size:12px;">💡 <b>Dica de lançamento:</b> Se no mesmo dia você concluiu uma etapa e iniciou a próxima, preencha o m² de ambas no mesmo RDO. O sistema registra o encerramento de uma e a arrancada da outra na mesma data!</div>' +
     progRows +
   '</div>' +
@@ -5025,7 +5022,7 @@ function renderFinanceiroTab(o) {
     const valorOrcado = valorPrevistoEtapa(o, e);
     const valLiberado = valorLiberadoEtapa(o, e.id);
     const comprasEtapa = totalGastosCompras(o, e.id);
-    const saldoEtapa = valorOrcado - comprasEtapa;
+    const saldoEtapa = valLiberado - comprasEtapa;
     const m2Prev = Number(e.metragemPrevista) || 0;
     const m2Exec = m2ExecutadoEtapa(o, e.id);
     const pctE   = m2Prev > 0 ? Math.round(m2Exec/m2Prev*100) : 0;
@@ -5042,7 +5039,7 @@ function renderFinanceiroTab(o) {
 
   return '' +
   '<div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:6px 10px;margin-bottom:12px;">' +
-    '<h2 class="section-title" style="margin:0;"><span class="bar"></span>Financeiro & Balanço da Obra <button class="help-btn" aria-label="Ajuda" onclick="toggleDica(\'help-fin\')" title="Ver ajuda">?</button></h2>' +
+    '<h2 class="section-title" style="margin:0;"><span class="bar"></span>Financeiro & Balanço da Obra <button class="help-btn" onclick="toggleDica(\'help-fin\')" title="Ver ajuda">?</button></h2>' +
     '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
       '<button class="btn btn-primary btn-sm" onclick="abrirModalRecebimento()">' + ICONS.plus + ' Registrar Pagamento Recebido</button>' +
       '<button class="btn btn-ghost btn-sm" onclick="abrirModalAditivo()">' + ICONS.plus + ' Aditivo / Desconto</button>' +
