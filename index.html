@@ -746,6 +746,7 @@ function renderShell(content,obra){
   pTabs.forEach(t=>{
     sideItems+='<div class="side-item'+(state.screen===t.key&&state.screen!=='obra'?' active':'')+'" onclick="state.screen=\''+t.key+'\';render();">'+t.icon+'<span>'+t.label+'</span></div>';
   });
+  sideItems+='<div style="padding:12px 16px;margin-top:4px;"><button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="abrirModalNovaObra();">'+ICONS.plus+' Nova Obra</button></div>';
 
   const topTitle=state.screen==='painel'?'Dashboard':state.screen==='config'?'Configuracoes':(obra?obra.nome:'Obra');
   const rptBtn=''
