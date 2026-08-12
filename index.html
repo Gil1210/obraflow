@@ -755,6 +755,11 @@ function renderShell(content,obra){
       '<button class="btn btn-ghost btn-sm" onclick="state.screen=\'painel\';render();">'+ICONS.back+' Voltar</button>'+
       '<button class="btn btn-ghost btn-sm" onclick="abrirModalEditarObra()">'+ICONS.edit+'</button>'+
       '<button class="btn btn-danger btn-sm" onclick="excluirObra(\''+obra.id+'\')">' +ICONS.trash+'</button>'+
+    '</div>':
+  state.screen==='painel'?
+    '<div style="display:flex;gap:6px;">'+
+      '<button class="btn btn-primary btn-sm" onclick="abrirModalNovaObra();">'+ICONS.plus+' Nova Obra</button>'+
+      '<button class="btn btn-ghost btn-sm" onclick="state.screen=\'config\';render();">Configuracoes</button>'+
     '</div>':''
 
   let obraTabsHtml='';
